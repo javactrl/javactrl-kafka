@@ -3,9 +3,9 @@
 ![CI](https://github.com/javactrl/javactrl-kafka/actions/workflows/main.yml/badge.svg)
 [![javadoc](https://javadoc.io/badge2/io.github.javactrl/javactrl-kafka/javadoc.svg)](https://javadoc.io/doc/io.github.javactrl/javactrl-kafka)
 
-The project is a new way to define workflows as code. It's minimalistic but feature-complete. It works on JVM with access to anything third-party available for JVM and Apache Kafka Streams.
+The project is a new way to define workflows as code. It's minimalistic but feature-complete. It works on JVM with access to anything third-party available for JVM and  Kafka Streams.
 
-Workflows here are just small and straightforward direct-style Java functions and they are converted into Apache Kafka Streams nodes. Kafka takes all the burden of making such workflows highly scalable, elastic, fault-tolerant, distributed, and much more. In addition, workflows are simple, easy to read, easy to write, easy to debug, easy to maintain, and easy to integrate with other components of Kafka-based infrastructure.
+Workflows here are just small and straightforward direct-style Java functions and they are converted into Apache Kafka Streams nodes. Kafka takes all the burden of making such workflows highly available, scalable, durable, fault-tolerant, distributed and so on. In addition, workflows are simple, easy to read, easy to write, easy to debug, easy to maintain, and easy to integrate with other components of Kafka-based infrastructure.
 
 Typical use cases include:
 
@@ -24,27 +24,29 @@ To make such state machines more human-usable, some so-called No-Code approaches
 
 On the other hand, the dependencies between the steps are evident if the whole workflow is defined as a Java function. I mean a single Java function for all workflow steps, not many small Java event handlers. Such Java code maps one-to-one domain logic to implementation. No need for non-executable complex diagrams or documentation before development. Develop, model, and document everything in one step.
 
-In async programming, this corresponds to the async function, improving async programming with callbacks. 
+In async programming, this corresponds to the async functions, which are proven to make programs much simpler compared to callbacks passing. 
+
+There are similar code-based orchestration tools, for example (Uber Cadence or Temporal.io). However, JavaCtrl usage is much simpler - no learning of new concepts (such as Singal, Action, Workflow etc.), and no dedicated IT infrastructure components are required. It's just plain Java plus Kafka Streams.
 
 Here is a workflow example:
 
 ```java
-  final var compensations = new ArrayList<CRunnable>();
+  var compensations = new ArrayList<CRunnable>();
   try {
-    final var car = reserveCar();
+    var car = reserveCar();
     compensations.add(() -> {
       cancelCar(car);
     });
-    final var hotel = reserveHotel();
+    var hotel = reserveHotel();
     compensations.add(() -> {
       cancelHotel(hotel);
     });    
-    final var flight = reserveFlight();
+    var flight = reserveFlight();
     compensations.add(() -> {
       cancelFlight(flight);
     });
-  } catch (final Throwable t) {
-    for(final var i : compensations) {
+  } catch (Throwable t) {
+    for(var i : compensations) {
       i.run();
     }
   }
@@ -55,16 +57,16 @@ The execution is suspended in any of `reserveCar`/`reserveHotel`/`reserveFlight`
 These three steps can run in parallel, and there are indeed combinators to run the part of code in parallel, like this:
 
 ```java
-    final var compensations = new ArrayList<CSupplier<Void>>();
+    var compensations = new ArrayList<CSupplier<Void>>();
     try {
-      final List<String> ret = anyOf(
+      List<String> ret = anyOf(
           () -> {
             Scheduler.sleep(TIMEOUT_DAYS, TimeUnit.DAYS);
             throw new RuntimeException("timeout");
           },
           () -> allOf(
               () -> {
-                final var car = reserveCar();
+                var car = reserveCar();
                 compensations.add(() -> {
                   cancelCar(car);
                   return null;
@@ -72,7 +74,7 @@ These three steps can run in parallel, and there are indeed combinators to run t
                 return car;
               },
               () -> {
-                final var hotel = reserveHotel();
+                var hotel = reserveHotel();
                 compensations.add(() -> {
                   cancelHotel(hotel);
                   return null;
@@ -80,7 +82,7 @@ These three steps can run in parallel, and there are indeed combinators to run t
                 return hotel;
               },
               () -> {
-                final var flight = reserveFlight();
+                var flight = reserveFlight();
                 compensations.add(() -> {
                   cancelFlight(flight);
                   return null;
@@ -91,7 +93,7 @@ These three steps can run in parallel, and there are indeed combinators to run t
               }));
       /* .... do anything with the ids */
       forward("result", "return:%s".formatted(String.join(",", ret)));
-    } catch (final Throwable t) {
+    } catch (Throwable t) {
       forward("error", "%s".formatted(t.getMessage()));
       allOf(compensations);
     }
@@ -128,7 +130,6 @@ dependencies {
   implementation 'io.github.javactrl:javactrl-kafka:1.0.1'
   implementation 'org.apache.kafka:kafka-streams:3.3.1'
   implementation 'org.slf4j:slf4j-simple:2.0.5' // or any other binding/provider for SLF4J
-  // ... other dependencies ...
 }
 
 application {
@@ -136,10 +137,9 @@ application {
     applicationDefaultJvmArgs = ["-javaagent:${configurations.javactrl.iterator().next()}"]
 }
 
-tasks.named('test') {
+test {
   useJUnitPlatform()
   jvmArgs "-javaagent:${configurations.javactrl.iterator().next()}"
-
 }
 
 ```
@@ -171,20 +171,20 @@ Serializability of the continuations, of course, implies serializability of all 
 Here is an example `main` converting workflow function `App::workflow` into a streams processor:
 
 ```java
-  public static void main(final String[] args) throws Exception {
-    final var bootstrapServers = args.length > 0 ? args[args.length-1] : "localhost:9092";
-    final var config = new Properties();
+  public static void main(String[] args) throws Exception {
+    var bootstrapServers = args.length > 0 ? args[args.length-1] : "localhost:9092";
+    var config = new Properties();
     config.putIfAbsent(StreamsConfig.APPLICATION_ID_CONFIG, "app-workflow");
     config.putIfAbsent(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.putIfAbsent(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     config.putIfAbsent(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     config.putIfAbsent(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-    final var topology = new Topology();
+    var topology = new Topology();
     topology.addSource("Loop", "workflow-resume")
       .addProcessor("Process", new WorkflowProcessorSupplier(App::workflow), "Loop")
       .addSink("scheduler", "workflow-scheduler", "Process")
       .addSink("result", "result", "Process"); // ...
-    final var app = new KafkaStreams(topology, config);
+    var app = new KafkaStreams(topology, config);
     /* always reseting since it is a demo example, don't reset in production... */
     app.cleanUp();
     app.start();
