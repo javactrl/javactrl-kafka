@@ -99,6 +99,8 @@ class WorkflowContext implements Serializable {
       try {
         i.head.resumeThrow(value);
       } catch (final Throwable e) {
+        if (e != value)
+          log.warn("an exception in a `throw` continuation", e);
       }
     }
   }
@@ -126,6 +128,7 @@ class WorkflowContext implements Serializable {
         token.head.resumeThrow(new WorkflowException(arg));
       }
     } catch (final CThrowable t) {
+      log.debug("ignoring control token", t);
     }
   }
 
