@@ -1,3 +1,9 @@
+
+> [!NOTE]
+> Get in touch to see if this tool fits your project!
+>
+> [📩 vitaliy.akimov@gmail.com](mailto:vitaliy.akimov@gmail.com)
+
 # Kafka Workflow on JVM
 
 ![CI](https://github.com/javactrl/javactrl-kafka/actions/workflows/main.yml/badge.svg)
