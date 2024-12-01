@@ -31,9 +31,9 @@ dependencies {
   implementation 'org.apache.kafka:kafka-streams:3.7.0'
   implementation 'org.slf4j:slf4j-api:2.0.13'
   testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
-  testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.7.0'
+  testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.8.0'
   testImplementation 'com.fasterxml.jackson.core:jackson-core:2.17.0'
-  testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.17.1'
+  testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
   testImplementation 'org.slf4j:slf4j-simple:2.0.5' 
 }
 
