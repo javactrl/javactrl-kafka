@@ -33,7 +33,7 @@ dependencies {
   testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
   testImplementation 'org.apache.kafka:kafka-streams-test-utils:3.9.0'
   testImplementation 'com.fasterxml.jackson.core:jackson-core:2.18.2'
-  testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+  testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
   testImplementation 'org.slf4j:slf4j-simple:2.0.16' 
 }
 
