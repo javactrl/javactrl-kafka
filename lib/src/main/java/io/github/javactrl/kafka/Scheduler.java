@@ -31,7 +31,12 @@ import io.github.javactrl.rt.Ctrl;
  * If the delay value is "0" the corresponding job will be canceled.
  */
 @Ctrl
+@SuppressWarnings("UseSpecificCatch")
 public class Scheduler {
+
+  private Scheduler() {
+    throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+  }
 
   /**
    * Suspends the current thread execution for the specified amount of time.
@@ -54,6 +59,11 @@ public class Scheduler {
 
   /** Apach Kafka Streams Processor implementing the workflow run implementation  */
   public static class SchedulerProcessor implements Processor<String, String, String, String> {
+
+    /** Construct an instance of SchedulerProcessor */
+    public SchedulerProcessor() {
+      // making javadoc happy
+    }
 
     /** storing context from Apacke Kafka Streams API */
     private ProcessorContext<String, String> context;
@@ -116,7 +126,7 @@ public class Scheduler {
       final long timestamp = record.timestamp() + param;
       var scheduled = fwd.get(timestamp);
       if (scheduled == null)
-        scheduled = new ArrayList<String>();
+        scheduled = new ArrayList<>();
       scheduled.add(addr);
       fwd.put(timestamp, scheduled);
       back.put(addr, timestamp);
@@ -141,7 +151,6 @@ public class Scheduler {
     final var config = new Properties();
     config.putIfAbsent(StreamsConfig.APPLICATION_ID_CONFIG, "workflow-demo-scheduler");
     config.putIfAbsent(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    config.putIfAbsent(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     config.putIfAbsent(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     config.putIfAbsent(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     final var topology = new Topology();

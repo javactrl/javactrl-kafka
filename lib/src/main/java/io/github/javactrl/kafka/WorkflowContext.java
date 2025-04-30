@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.kafka.streams.processor.api.ProcessorContext;
+import org.apache.kafka.streams.processor.api.Record;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,13 +15,11 @@ import io.github.javactrl.rt.CallFrame;
 import io.github.javactrl.rt.Ctrl;
 import io.github.javactrl.rt.Unwind;
 
-import org.apache.kafka.streams.processor.api.ProcessorContext;
-import org.apache.kafka.streams.processor.api.Record;
-
 /**
  * State of the currently running workflow
  */
 @Ctrl
+@SuppressWarnings("UseSpecificCatch")
 class WorkflowContext implements Serializable {
   /** Serialization id */
   static final long serialVersionUID = CallFrame.serialVersionUID;

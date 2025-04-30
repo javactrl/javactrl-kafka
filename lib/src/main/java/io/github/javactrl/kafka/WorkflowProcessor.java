@@ -9,7 +9,6 @@ import org.apache.kafka.streams.processor.api.Processor;
 import org.apache.kafka.streams.processor.api.ProcessorContext;
 import org.apache.kafka.streams.processor.api.Record;
 import org.apache.kafka.streams.state.KeyValueStore;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +24,7 @@ import org.slf4j.LoggerFactory;
  * 
  * Each sink to which the workflow writes must be added as a sink to this Processor.
  */
+@SuppressWarnings("UseSpecificCatch")
 public class WorkflowProcessor implements Processor<String, String, String, String> {
   /** A prefix for messages on resumption thread which starts a new worklow */
   public static final String NEW_THREAD_PREFIX = "new:";
@@ -39,7 +39,7 @@ public class WorkflowProcessor implements Processor<String, String, String, Stri
   private ProcessorContext<String, String> processorContext;
 
   /** The currently running workflow function */
-  private Workflow workflow;
+  private final Workflow workflow;
 
   /**
    * Constructor

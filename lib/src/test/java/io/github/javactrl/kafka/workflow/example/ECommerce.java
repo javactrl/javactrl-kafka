@@ -14,15 +14,17 @@ import org.apache.kafka.streams.Topology;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static io.github.javactrl.ext.Concurrency.anyOf;
 import io.github.javactrl.kafka.Scheduler;
+import static io.github.javactrl.kafka.Workflow.await;
+import static io.github.javactrl.kafka.Workflow.forward;
+import static io.github.javactrl.kafka.Workflow.newVar;
 import io.github.javactrl.kafka.WorkflowProcessorSupplier;
 import io.github.javactrl.rt.CThrowable;
 import io.github.javactrl.rt.Ctrl;
 
-import static io.github.javactrl.ext.Concurrency.*;
-import static io.github.javactrl.kafka.Workflow.*;
-
 @Ctrl
+@SuppressWarnings("UseSpecificCatch")
 public class ECommerce {
   public static void workflow(final String parameter) throws CThrowable {
     final int timeout = parameter == null ? 1000 : Integer.parseInt(parameter);
@@ -78,7 +80,6 @@ public class ECommerce {
     final var config = new Properties();
     config.putIfAbsent(StreamsConfig.APPLICATION_ID_CONFIG, "ecommerce-demo-workflow");
     config.putIfAbsent(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-    config.putIfAbsent(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
     config.putIfAbsent(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     config.putIfAbsent(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
     final var topology = new Topology();

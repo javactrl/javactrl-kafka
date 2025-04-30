@@ -22,6 +22,7 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.Topology;
 
 @Ctrl
+@SuppressWarnings("UseSpecificCatch")
 public class TripBookingSaga {
   static final int TIMEOUT_MS = 1000;
 
@@ -92,7 +93,6 @@ public class TripBookingSaga {
     app.cleanUp();
     app.start();
     Runtime.getRuntime().addShutdownHook(new Thread(app::close));
-
   }
 
   static String reserveCar() throws CThrowable {
@@ -134,7 +134,7 @@ public class TripBookingSaga {
     }
   }
 
-  static void timeout() throws CThrowable {
+  public static void timeout() throws CThrowable {
     final var v = newVar();
     final var key = String.format("%s|%s", getThreadId(), v.getLocalId());
     forward("scheduler", key, Integer.toString(TIMEOUT_MS));
